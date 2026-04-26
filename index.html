@@ -1,0 +1,901 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MCP 01 — The Model Context Protocol — A Visual Tour</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-primary: #0a0a0a;
+            --bg-card: #0d1117;
+            --bg-code: #161b22;
+            --text-primary: #e6edf3;
+            --text-secondary: #8b949e;
+            --accent: #76B900;
+            --accent-dim: #76B90044;
+            --accent-glow: #76B90033;
+            --border: #21262d;
+            --font-display: 'Space Grotesk', sans-serif;
+            --font-mono: 'JetBrains Mono', 'Fira Code', monospace;
+            --font-body: 'Inter', sans-serif;
+            --max-width: 900px;
+        }
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        html { scroll-behavior: smooth; }
+        body {
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            font-family: var(--font-body);
+            font-size: 17px;
+            line-height: 1.7;
+            overflow-x: hidden;
+        }
+        .hero {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 2rem 1.5rem;
+            text-align: center;
+            position: relative;
+        }
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 600px;
+            height: 600px;
+            background: radial-gradient(circle, var(--accent-glow) 0%, transparent 70%);
+            pointer-events: none;
+            z-index: 0;
+        }
+        .hero > * { position: relative; z-index: 1; }
+        .series-label {
+            font-family: var(--font-mono);
+            font-size: 0.85rem;
+            color: var(--accent);
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            margin-bottom: 1rem;
+        }
+        .hero h1 {
+            font-family: var(--font-display);
+            font-size: clamp(2rem, 5vw, 3.2rem);
+            font-weight: 700;
+            color: var(--text-primary);
+            line-height: 1.2;
+            margin-bottom: 1rem;
+        }
+        .hero h1 .accent { color: var(--accent); }
+        .hero .subtitle {
+            font-size: 1.1rem;
+            color: var(--text-secondary);
+            max-width: 640px;
+            margin-bottom: 2rem;
+        }
+        .tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            justify-content: center;
+            margin-bottom: 2.5rem;
+        }
+        .tag {
+            font-family: var(--font-mono);
+            font-size: 0.75rem;
+            padding: 0.25rem 0.75rem;
+            border-radius: 999px;
+            border: 1px solid var(--accent);
+            color: var(--accent);
+            background: var(--accent-dim);
+            white-space: nowrap;
+        }
+        .pipeline {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: center;
+            gap: 0.25rem;
+            margin-bottom: 1rem;
+            max-width: var(--max-width);
+        }
+        .pipeline-step {
+            font-family: var(--font-mono);
+            font-size: 0.7rem;
+            padding: 0.3rem 0.7rem;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            color: var(--text-secondary);
+            white-space: nowrap;
+        }
+        .pipeline-arrow { color: var(--accent); font-size: 0.9rem; font-weight: 700; }
+        .slide {
+            min-height: 100vh;
+            max-width: var(--max-width);
+            margin: 0 auto;
+            padding: 4rem 1.5rem;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+        .slide-number {
+            font-family: var(--font-display);
+            font-size: 5rem;
+            font-weight: 700;
+            color: var(--accent-dim);
+            position: absolute;
+            top: 2rem;
+            right: 1.5rem;
+            line-height: 1;
+            user-select: none;
+        }
+        .slide h2 {
+            font-family: var(--font-display);
+            font-size: 1.9rem;
+            font-weight: 700;
+            color: var(--accent);
+            margin-bottom: 1.5rem;
+            line-height: 1.25;
+        }
+        .slide h3 {
+            font-family: var(--font-display);
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-top: 1.5rem;
+            margin-bottom: 0.75rem;
+        }
+        .slide p { margin-bottom: 1rem; color: var(--text-secondary); }
+        .slide p strong { color: var(--text-primary); }
+        .slide ul, .slide ol { margin-bottom: 1rem; padding-left: 1.5rem; color: var(--text-secondary); }
+        .slide li { margin-bottom: 0.4rem; }
+        .slide li strong { color: var(--text-primary); }
+        .slide code {
+            font-family: var(--font-mono);
+            font-size: 0.88em;
+            background: var(--bg-code);
+            border: 1px solid var(--border);
+            padding: 0.05rem 0.35rem;
+            border-radius: 3px;
+            color: #c9d1d9;
+        }
+        .code-block {
+            background: var(--bg-code);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            margin: 1.25rem 0;
+            overflow: hidden;
+        }
+        .code-header {
+            font-family: var(--font-mono);
+            font-size: 0.75rem;
+            color: var(--accent);
+            background: rgba(118, 185, 0, 0.08);
+            padding: 0.4rem 1rem;
+            border-bottom: 1px solid var(--border);
+        }
+        .code-block pre { margin: 0; padding: 1rem; overflow-x: auto; }
+        .code-block code {
+            font-family: var(--font-mono);
+            font-size: 0.85rem;
+            line-height: 1.6;
+            color: #c9d1d9;
+            background: transparent;
+            border: none;
+            padding: 0;
+        }
+        .kw { color: #ff7b72; }
+        .fn { color: #d2a8ff; }
+        .str { color: #a5d6ff; }
+        .cm { color: #8b949e; font-style: italic; }
+        .num { color: #79c0ff; }
+        .type { color: #ffa657; }
+        .dir { color: #ff7b72; }
+        .mac { color: #ffa657; }
+        .table-wrap {
+            overflow-x: auto;
+            margin: 1.25rem 0;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+        }
+        table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
+        th {
+            background: var(--bg-code);
+            color: var(--accent);
+            font-weight: 600;
+            text-align: left;
+            padding: 0.75rem 1rem;
+            border-bottom: 1px solid var(--border);
+            font-family: var(--font-display);
+            white-space: nowrap;
+        }
+        td {
+            padding: 0.6rem 1rem;
+            border-bottom: 1px solid var(--border);
+            color: var(--text-secondary);
+        }
+        tr:last-child td { border-bottom: none; }
+        tr:nth-child(even) td { background: rgba(13, 17, 23, 0.5); }
+        .diagram-flow {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            margin: 1.5rem 0;
+            padding: 1.5rem;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+        }
+        .diagram-box {
+            font-family: var(--font-mono);
+            font-size: 0.85rem;
+            padding: 0.5rem 1rem;
+            background: var(--bg-code);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            color: var(--text-primary);
+            text-align: center;
+            white-space: nowrap;
+        }
+        .diagram-box.accent { border-color: var(--accent); color: var(--accent); background: rgba(118, 185, 0, 0.08); }
+        .diagram-box.dim { color: var(--text-secondary); border-color: var(--border); }
+        .diagram-arrow { color: var(--accent); font-size: 1.3rem; font-weight: 700; }
+        .diagram-vertical {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.3rem;
+            margin: 1.5rem 0;
+            padding: 1.5rem;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+        }
+        .diagram-vertical .diagram-arrow { font-size: 1.1rem; }
+        .hierarchy {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+            margin: 1.5rem 0;
+            padding: 1.5rem;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+        }
+        .hierarchy-level { display: flex; align-items: center; gap: 0.75rem; }
+        .hierarchy-label {
+            font-family: var(--font-mono);
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            min-width: 80px;
+            text-align: right;
+        }
+        .hierarchy-items { display: flex; flex-wrap: wrap; gap: 0.35rem; }
+        .hierarchy-item {
+            font-family: var(--font-mono);
+            font-size: 0.75rem;
+            padding: 0.3rem 0.6rem;
+            border-radius: 4px;
+            background: var(--bg-code);
+            border: 1px solid var(--border);
+            color: var(--text-secondary);
+        }
+        .hierarchy-item.accent { border-color: var(--accent); color: var(--accent); background: rgba(118, 185, 0, 0.08); }
+        .diagram-grid {
+            display: grid;
+            gap: 0.75rem;
+            margin: 1.5rem 0;
+            padding: 1.5rem;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+        }
+        .diagram-grid.cols-2 { grid-template-columns: 1fr 1fr; }
+        .diagram-grid.cols-3 { grid-template-columns: 1fr 1fr 1fr; }
+        .diagram-panel {
+            padding: 1rem;
+            background: var(--bg-code);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+        }
+        .diagram-panel.accent-border { border-left: 3px solid var(--accent); }
+        .diagram-panel h4 {
+            font-family: var(--font-display);
+            font-size: 1rem;
+            color: var(--accent);
+            margin-bottom: 0.5rem;
+        }
+        .diagram-panel p, .diagram-panel ul { font-size: 0.85rem; }
+        .callout {
+            background: var(--bg-card);
+            border-left: 3px solid var(--accent);
+            border-radius: 0 8px 8px 0;
+            padding: 1rem 1.25rem;
+            margin: 1.25rem 0;
+        }
+        .callout p { margin-bottom: 0; }
+        .callout p + p { margin-top: 0.5rem; }
+        .callout .callout-label {
+            font-family: var(--font-mono);
+            font-size: 0.75rem;
+            color: var(--accent);
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            margin-bottom: 0.3rem;
+        }
+        .contents-list { list-style: none; padding-left: 0; counter-reset: contents; }
+        .contents-list li {
+            counter-increment: contents;
+            padding: 0.6rem 0;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        .contents-list li:last-child { border-bottom: none; }
+        .contents-list li::before {
+            content: counter(contents, decimal-leading-zero);
+            font-family: var(--font-mono);
+            font-size: 0.85rem;
+            color: var(--accent);
+            min-width: 2rem;
+        }
+        .contents-list a { color: var(--text-primary); text-decoration: none; transition: color 0.2s; }
+        .contents-list a:hover { color: var(--accent); }
+        .footer {
+            text-align: center;
+            padding: 3rem 1.5rem;
+            color: var(--text-secondary);
+            font-size: 0.85rem;
+            border-top: 1px solid var(--border);
+            max-width: var(--max-width);
+            margin: 0 auto;
+        }
+        .footer a { color: var(--accent); text-decoration: none; }
+        .footer a:hover { text-decoration: underline; }
+        .canvas-wrap {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 1rem;
+            margin: 1.25rem 0;
+            overflow-x: auto;
+        }
+        .canvas-wrap canvas, .canvas-wrap svg { display: block; margin: 0 auto; max-width: 100%; }
+        .badge {
+            display: inline-block;
+            font-family: var(--font-mono);
+            font-size: 0.65rem;
+            padding: 0.1rem 0.45rem;
+            border-radius: 999px;
+            border: 1px solid var(--border);
+            color: var(--text-secondary);
+            vertical-align: middle;
+            margin-left: 0.3rem;
+        }
+        .badge.ok    { border-color: var(--accent); color: var(--accent); background: var(--accent-dim); }
+        .badge.warn  { border-color: #ffa657; color: #ffa657; background: rgba(255,166,87,0.08); }
+        .badge.bad   { border-color: #ff7b72; color: #ff7b72; background: rgba(255,123,114,0.08); }
+        @media (max-width: 640px) {
+            .slide { padding: 3rem 1rem; min-height: auto; }
+            .slide-number { font-size: 3rem; top: 1.5rem; right: 1rem; }
+            .slide h2 { font-size: 1.5rem; }
+            .diagram-grid.cols-2, .diagram-grid.cols-3 { grid-template-columns: 1fr; }
+            .pipeline { gap: 0.15rem; }
+            .pipeline-step { font-size: 0.6rem; padding: 0.2rem 0.4rem; }
+            .hero h1 { font-size: 1.8rem; }
+            table { font-size: 0.78rem; }
+        }
+    </style>
+</head>
+<body>
+<header class="hero">
+    <div class="series-label">Model Context Protocol Series — Presentation 01</div>
+    <h1>The <span class="accent">Model Context Protocol</span> &mdash; A Visual Tour</h1>
+    <p class="subtitle">What MCP actually is on the wire — JSON-RPC primitives, host/client/server topology, capability negotiation, lifecycle, and the version timeline from 2024-11-05 to 2025-06-18.</p>
+
+    <div class="tags">
+        <span class="tag">MCP</span>
+        <span class="tag">JSON-RPC 2.0</span>
+        <span class="tag">Tools</span>
+        <span class="tag">Resources</span>
+        <span class="tag">Prompts</span>
+        <span class="tag">Sampling</span>
+        <span class="tag">Elicitation</span>
+    </div>
+
+    <div class="pipeline">
+        <span class="pipeline-step">Host</span>
+        <span class="pipeline-arrow">&rarr;</span>
+        <span class="pipeline-step">Client</span>
+        <span class="pipeline-arrow">&rarr;</span>
+        <span class="pipeline-step">Server</span>
+        <span class="pipeline-arrow">&rarr;</span>
+        <span class="pipeline-step">Initialize</span>
+        <span class="pipeline-arrow">&rarr;</span>
+        <span class="pipeline-step">Capabilities</span>
+        <span class="pipeline-arrow">&rarr;</span>
+        <span class="pipeline-step">Primitives</span>
+        <span class="pipeline-arrow">&rarr;</span>
+        <span class="pipeline-step">Shutdown</span>
+    </div>
+</header>
+
+<section class="slide" id="slide-00">
+    <div class="slide-number">00</div>
+    <h2>Topics We'll Cover</h2>
+    <ul class="contents-list">
+        <li><a href="#slide-01">The M&times;N Problem &mdash; Why MCP Exists</a></li>
+        <li><a href="#slide-02">Host / Client / Server &mdash; The Three Roles</a></li>
+        <li><a href="#slide-03">JSON-RPC 2.0 &mdash; The Wire Alphabet</a></li>
+        <li><a href="#slide-04">The Five Primitives</a></li>
+        <li><a href="#slide-05">Capability Negotiation</a></li>
+        <li><a href="#slide-06">Lifecycle &mdash; initialize &rarr; operate &rarr; shutdown</a></li>
+        <li><a href="#slide-07">Versioning &mdash; The Spec Timeline</a></li>
+        <li><a href="#slide-08">Worked Example &mdash; A Full Annotated Exchange</a></li>
+        <li><a href="#slide-09">What to Take Away</a></li>
+    </ul>
+</section>
+
+<section class="slide" id="slide-01">
+    <div class="slide-number">01</div>
+    <h2>The M&times;N Problem &mdash; Why MCP Exists</h2>
+    <p>By late 2024 every serious LLM application had reinvented the same wheel: a bespoke way to plug a model into a database, a filesystem, a ticketing system, an internal API. <strong>M</strong> AI applications times <strong>N</strong> data sources is M&times;N integrations &mdash; each one a brittle bag of function-calling JSON, prompt scaffolding, and authentication glue.</p>
+
+    <p>Anthropic open-sourced the <strong>Model Context Protocol</strong> in November 2024 to collapse this to <strong>M+N</strong>: each application speaks one protocol, each tool ships one server. The marketing line is &ldquo;USB-C for AI&rdquo; &mdash; a single shaped plug that any compliant host can talk to.</p>
+
+    <div class="diagram-grid cols-2">
+        <div class="diagram-panel accent-border">
+            <h4>Before MCP &mdash; M&times;N integrations</h4>
+            <p>Every host wrote its own connector for every tool. Cursor + Postgres, Claude Desktop + Postgres, Continue + Postgres, &hellip; same job, three implementations, three sets of bugs.</p>
+        </div>
+        <div class="diagram-panel accent-border">
+            <h4>With MCP &mdash; M+N integrations</h4>
+            <p>The Postgres team writes <em>one</em> server. Every compliant host gets it for free. The work moves from N-app-teams to one tool-team.</p>
+        </div>
+    </div>
+
+    <div class="callout">
+        <div class="callout-label">Why it stuck</div>
+        <p>MCP is small enough to read in an afternoon, JSON-RPC over a stream that any language can speak, and it ships with reference SDKs in Python, TypeScript, Java, C#, Kotlin, Swift, Go and Ruby. The barrier to writing a server is &ldquo;define a function and a JSON Schema&rdquo;.</p>
+    </div>
+</section>
+
+<section class="slide" id="slide-02">
+    <div class="slide-number">02</div>
+    <h2>Host / Client / Server &mdash; The Three Roles</h2>
+    <p>The MCP architecture has three named participants. Mixing them up is the single most common source of confusion when reading the spec, so it's worth pinning down up front:</p>
+
+    <div class="table-wrap">
+        <table>
+            <thead><tr><th>Role</th><th>Who plays it</th><th>Job</th></tr></thead>
+            <tbody>
+                <tr><td><strong>Host</strong></td><td>Claude Desktop, Claude Code, Cursor, Zed, Continue, VS Code, your own agent runtime</td><td>Owns the LLM. Orchestrates the conversation. Decides which servers to load.</td></tr>
+                <tr><td><strong>Client</strong></td><td>A library inside the host &mdash; one client instance per connected server</td><td>Speaks the JSON-RPC protocol. 1:1 with a server. Stateful.</td></tr>
+                <tr><td><strong>Server</strong></td><td>The Postgres server, the GitHub server, your own internal data server</td><td>Exposes tools, resources, prompts. Knows nothing about the LLM. Pure protocol citizen.</td></tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="canvas-wrap">
+        <svg viewBox="0 0 720 280" width="720" height="280" xmlns="http://www.w3.org/2000/svg">
+            <style>
+                .box  { fill: #161b22; stroke: #30363d; }
+                .box.h { stroke: #76B900; fill: rgba(118,185,0,0.08); }
+                .lbl  { fill: #e6edf3; font-family: 'Space Grotesk', sans-serif; font-size: 13px; font-weight: 600; }
+                .sub  { fill: #8b949e; font-family: 'JetBrains Mono', monospace; font-size: 10px; }
+                .arr  { stroke: #76B900; stroke-width: 1.5; fill: none; marker-end: url(#mh); }
+                .arrL { stroke: #8b949e; stroke-width: 1; fill: none; }
+                .ttl  { fill: #76B900; font-family: 'Space Grotesk', sans-serif; font-weight: 600; font-size: 13px; }
+            </style>
+            <defs>
+                <marker id="mh" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+                    <path d="M 0 0 L 10 5 L 0 10 z" fill="#76B900"/>
+                </marker>
+            </defs>
+            <text x="10"  y="20" class="ttl">Process boundaries &mdash; one host, many clients, many servers</text>
+
+            <rect x="40"  y="50"  width="240" height="180" rx="6" class="box h"/>
+            <text x="50"  y="72"  class="lbl">Host (e.g. Claude Desktop)</text>
+            <text x="50"  y="90"  class="sub">owns the LLM &middot; runs the agent loop</text>
+
+            <rect x="55"  y="105" width="100" height="40" rx="4" class="box"/>
+            <text x="68"  y="128" class="lbl">Client A</text>
+            <rect x="165" y="105" width="100" height="40" rx="4" class="box"/>
+            <text x="178" y="128" class="lbl">Client B</text>
+            <rect x="55"  y="160" width="100" height="40" rx="4" class="box"/>
+            <text x="68"  y="183" class="lbl">Client C</text>
+            <text x="50"  y="220" class="sub">one client instance per server</text>
+
+            <rect x="430" y="40"  width="240" height="50" rx="6" class="box"/>
+            <text x="445" y="62"  class="lbl">Server A &mdash; Postgres</text>
+            <text x="445" y="80"  class="sub">stdio child process</text>
+
+            <rect x="430" y="110" width="240" height="50" rx="6" class="box"/>
+            <text x="445" y="132" class="lbl">Server B &mdash; GitHub</text>
+            <text x="445" y="150" class="sub">Streamable HTTP, OAuth</text>
+
+            <rect x="430" y="180" width="240" height="50" rx="6" class="box"/>
+            <text x="445" y="202" class="lbl">Server C &mdash; Filesystem</text>
+            <text x="445" y="220" class="sub">stdio child process</text>
+
+            <path d="M 155 125 L 430 65" class="arr"/>
+            <path d="M 265 125 L 430 135" class="arr"/>
+            <path d="M 155 180 L 430 205" class="arr"/>
+        </svg>
+    </div>
+
+    <div class="callout">
+        <div class="callout-label">Mental model</div>
+        <p>Think of the host as the operating-system shell, the clients as file descriptors, and the servers as long-running daemons. The host is where trust lives; the servers are dumb actuators that the host has chosen to load.</p>
+    </div>
+</section>
+
+<section class="slide" id="slide-03">
+    <div class="slide-number">03</div>
+    <h2>JSON-RPC 2.0 &mdash; The Wire Alphabet</h2>
+    <p>MCP doesn't invent a new wire format. Every message is a JSON-RPC 2.0 envelope, defined by the 5-page spec from 2010. There are exactly three message shapes:</p>
+
+    <div class="diagram-grid cols-3">
+        <div class="diagram-panel accent-border">
+            <h4>Request</h4>
+            <p>Has an <code>id</code>. Expects a response. <code>{"jsonrpc":"2.0","id":1,"method":"tools/list","params":{}}</code></p>
+        </div>
+        <div class="diagram-panel accent-border">
+            <h4>Response</h4>
+            <p>Carries the same <code>id</code>. Either <code>result</code> or <code>error</code>, never both. <code>{"jsonrpc":"2.0","id":1,"result":{...}}</code></p>
+        </div>
+        <div class="diagram-panel accent-border">
+            <h4>Notification</h4>
+            <p>Has <em>no</em> <code>id</code>. Fire-and-forget. <code>{"jsonrpc":"2.0","method":"notifications/initialized"}</code></p>
+        </div>
+    </div>
+
+    <h3>The Standard Error Codes</h3>
+    <p>JSON-RPC defines reserved codes; MCP layers a small set on top. Anything outside <code>-32768..-32000</code> is yours to define for tool-level failures.</p>
+
+    <div class="table-wrap">
+        <table>
+            <thead><tr><th>Code</th><th>Name</th><th>When</th></tr></thead>
+            <tbody>
+                <tr><td><code>-32700</code></td><td>Parse error</td><td>The JSON itself was malformed</td></tr>
+                <tr><td><code>-32600</code></td><td>Invalid request</td><td>Not a valid JSON-RPC envelope</td></tr>
+                <tr><td><code>-32601</code></td><td>Method not found</td><td>The method name is unknown</td></tr>
+                <tr><td><code>-32602</code></td><td>Invalid params</td><td>The params didn't match the schema</td></tr>
+                <tr><td><code>-32603</code></td><td>Internal error</td><td>Catch-all for server bugs</td></tr>
+                <tr><td><code>-32002</code></td><td>Resource not found</td><td>MCP-specific (resources/read on a missing URI)</td></tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="callout">
+        <div class="callout-label">Important: tool errors are NOT JSON-RPC errors</div>
+        <p>If a tool runs and the operation fails (e.g. <code>create_issue</code> hit a 401), the JSON-RPC call still succeeds with a <code>result</code>. The tool result carries <code>isError: true</code> and the failure message. JSON-RPC errors are reserved for protocol-level problems &mdash; bad params, missing methods, unmarshalable JSON. Mixing the two is the bug every new server author writes once.</p>
+    </div>
+</section>
+
+<section class="slide" id="slide-04">
+    <div class="slide-number">04</div>
+    <h2>The Five Primitives</h2>
+    <p>The protocol's surface area is small: three primitives a server can offer, two that a client can offer back. Everything else in MCP is plumbing for these.</p>
+
+    <h3>Server-side primitives (server &rarr; client)</h3>
+    <div class="diagram-grid cols-3">
+        <div class="diagram-panel accent-border">
+            <h4>Tools</h4>
+            <p>Side-effecting functions the model can call. <code>tools/list</code>, <code>tools/call</code>. Each tool ships a JSON Schema for its arguments and (since 2025-06-18) for its <em>structured</em> output. Annotations declare read-only / destructive / open-world.</p>
+        </div>
+        <div class="diagram-panel accent-border">
+            <h4>Resources</h4>
+            <p>Read-only data identified by URI. <code>resources/list</code>, <code>resources/read</code>, <code>resources/subscribe</code>. Subscriptions push <code>resources/updated</code> notifications &mdash; how a server tells the client &ldquo;the file you were watching changed&rdquo;.</p>
+        </div>
+        <div class="diagram-panel accent-border">
+            <h4>Prompts</h4>
+            <p>Reusable, parameterised templates the user can invoke explicitly &mdash; typically as slash commands or quick actions. <code>prompts/list</code>, <code>prompts/get</code>. Different from a tool: a prompt is composed and shown to the user, a tool is executed.</p>
+        </div>
+    </div>
+
+    <h3>Client-side primitives (client &rarr; server)</h3>
+    <div class="diagram-grid cols-2">
+        <div class="diagram-panel accent-border">
+            <h4>Sampling</h4>
+            <p><code>sampling/createMessage</code>. The server asks the client to call <em>its</em> LLM. Lets a server build agentic behaviour without bringing its own model. The host MUST gate this with explicit user approval.</p>
+        </div>
+        <div class="diagram-panel accent-border">
+            <h4>Elicitation</h4>
+            <p><code>elicitation/create</code>, standardised in 2025-06-18. The server presents a typed, schema-constrained question (<em>&ldquo;destination zip code?&rdquo;</em>) and the client renders a form. Returns <code>accept</code>, <code>decline</code>, or <code>cancel</code>.</p>
+        </div>
+    </div>
+
+    <div class="callout">
+        <div class="callout-label">Two more first-class concepts</div>
+        <p><strong>Roots</strong> are URIs the host has authorised the server to touch (e.g. a project directory). <code>roots/list</code> is a client-side request.</p>
+        <p><strong>Logging</strong> is the <code>notifications/message</code> stream and <code>logging/setLevel</code> request &mdash; the server can emit structured log records to the client at standard syslog levels.</p>
+    </div>
+</section>
+
+<section class="slide" id="slide-05">
+    <div class="slide-number">05</div>
+    <h2>Capability Negotiation</h2>
+    <p>MCP explicitly avoids feature-detection by trial-and-error. At handshake time both sides exchange a <code>capabilities</code> object; nothing else can be assumed. This is what lets a Python server written against the 2024-11-05 spec keep working with a Claude Desktop running 2025-06-18.</p>
+
+    <div class="code-block">
+        <div class="code-header">Server &rarr; client (initialize result, abridged)</div>
+<pre><code><span class="str">{</span>
+  <span class="str">"jsonrpc"</span>: <span class="str">"2.0"</span>,
+  <span class="str">"id"</span>: <span class="num">1</span>,
+  <span class="str">"result"</span>: {
+    <span class="str">"protocolVersion"</span>: <span class="str">"2025-06-18"</span>,
+    <span class="str">"capabilities"</span>: {
+      <span class="str">"tools"</span>:     { <span class="str">"listChanged"</span>: <span class="kw">true</span> },
+      <span class="str">"resources"</span>: { <span class="str">"subscribe"</span>:   <span class="kw">true</span>,
+                       <span class="str">"listChanged"</span>: <span class="kw">true</span> },
+      <span class="str">"prompts"</span>:   { <span class="str">"listChanged"</span>: <span class="kw">true</span> },
+      <span class="str">"logging"</span>:   {},
+      <span class="str">"completions"</span>: {}                <span class="cm">// argument autocompletion</span>
+    },
+    <span class="str">"serverInfo"</span>: { <span class="str">"name"</span>: <span class="str">"my-server"</span>, <span class="str">"version"</span>: <span class="str">"0.4.1"</span> },
+    <span class="str">"instructions"</span>: <span class="str">"Use the &lsquo;query&rsquo; tool to read the database."</span>
+  }
+}</code></pre>
+    </div>
+
+    <div class="callout">
+        <div class="callout-label">Read this carefully</div>
+        <p>An empty object (<code>"logging": {}</code>) means &ldquo;I support this primitive but with no sub-options&rdquo;. An <em>absent</em> key means &ldquo;I do not support this primitive&rdquo;. The client MUST NOT call <code>logging/setLevel</code> on a server that didn't declare <code>logging</code>. Calling an undeclared primitive returns <code>-32601 Method not found</code>.</p>
+    </div>
+
+    <h3>Sub-flags worth knowing</h3>
+    <div class="table-wrap">
+        <table>
+            <thead><tr><th>Flag</th><th>Meaning</th></tr></thead>
+            <tbody>
+                <tr><td><code>tools.listChanged</code></td><td>Server may emit <code>notifications/tools/list_changed</code> when its tool catalogue changes at runtime</td></tr>
+                <tr><td><code>resources.subscribe</code></td><td>Server supports <code>resources/subscribe</code> &mdash; per-URI change watching</td></tr>
+                <tr><td><code>resources.listChanged</code></td><td>Server may emit a global resources-changed notification (catalogue-level)</td></tr>
+                <tr><td><code>sampling</code> (client side)</td><td>Client has an LLM available and will service <code>sampling/createMessage</code></td></tr>
+                <tr><td><code>elicitation</code> (client side)</td><td>Client can render schema-constrained user prompts</td></tr>
+                <tr><td><code>roots.listChanged</code></td><td>Client will tell the server when the root list changes (e.g. user opened a new project)</td></tr>
+            </tbody>
+        </table>
+    </div>
+</section>
+
+<section class="slide" id="slide-06">
+    <div class="slide-number">06</div>
+    <h2>Lifecycle &mdash; <code>initialize</code> &rarr; operate &rarr; shutdown</h2>
+    <p>Every MCP session goes through the same three phases. The protocol is strict about ordering: a request issued in the wrong phase is a protocol error.</p>
+
+    <div class="canvas-wrap">
+        <svg viewBox="0 0 720 360" width="720" height="360" xmlns="http://www.w3.org/2000/svg">
+            <style>
+                .lane  { stroke: #30363d; stroke-dasharray: 2 3; }
+                .ll    { fill: #76B900; font-family: 'Space Grotesk', sans-serif; font-weight: 600; font-size: 13px; }
+                .req   { stroke: #76B900; stroke-width: 1.5; fill: none; marker-end: url(#mh2); }
+                .resp  { stroke: #d2a8ff; stroke-width: 1.5; fill: none; marker-end: url(#mp2); }
+                .note  { stroke: #ffa657; stroke-width: 1.5; fill: none; stroke-dasharray: 4 3; marker-end: url(#mo2); }
+                .lbl   { fill: #e6edf3; font-family: 'JetBrains Mono', monospace; font-size: 11px; }
+                .sub   { fill: #8b949e; font-family: 'JetBrains Mono', monospace; font-size: 10px; }
+                .ph    { fill: rgba(118,185,0,0.04); stroke: #21262d; }
+            </style>
+            <defs>
+                <marker id="mh2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                    <path d="M 0 0 L 10 5 L 0 10 z" fill="#76B900"/>
+                </marker>
+                <marker id="mp2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                    <path d="M 0 0 L 10 5 L 0 10 z" fill="#d2a8ff"/>
+                </marker>
+                <marker id="mo2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                    <path d="M 0 0 L 10 5 L 0 10 z" fill="#ffa657"/>
+                </marker>
+            </defs>
+
+            <text x="120" y="22" class="ll">Client</text>
+            <text x="540" y="22" class="ll">Server</text>
+            <line x1="160" y1="35" x2="160" y2="350" class="lane"/>
+            <line x1="560" y1="35" x2="560" y2="350" class="lane"/>
+
+            <rect x="10" y="40"  width="700" height="90"  class="ph"/>
+            <text x="20" y="58"  class="ll">Initialization</text>
+            <path d="M 160 75  L 555 75"  class="req"/>
+            <text x="170" y="70"  class="lbl">initialize { protocolVersion, capabilities, clientInfo }</text>
+            <path d="M 560 100 L 165 100" class="resp"/>
+            <text x="200" y="95"  class="lbl">result { protocolVersion, capabilities, serverInfo }</text>
+            <path d="M 160 122 L 555 122" class="note"/>
+            <text x="170" y="117" class="lbl">notifications/initialized  (no id)</text>
+
+            <rect x="10" y="140" width="700" height="160" class="ph"/>
+            <text x="20" y="158" class="ll">Operation</text>
+            <path d="M 160 175 L 555 175" class="req"/>
+            <text x="170" y="170" class="lbl">tools/list</text>
+            <path d="M 560 195 L 165 195" class="resp"/>
+            <text x="170" y="190" class="lbl">{ tools: [...] }</text>
+            <path d="M 160 220 L 555 220" class="req"/>
+            <text x="170" y="215" class="lbl">tools/call { name, arguments }</text>
+            <path d="M 560 245 L 165 245" class="note"/>
+            <text x="170" y="240" class="lbl">notifications/progress  (any time)</text>
+            <path d="M 560 270 L 165 270" class="resp"/>
+            <text x="170" y="265" class="lbl">{ content: [...], structuredContent, isError }</text>
+            <text x="20"  y="293" class="sub">primitive calls in any order, both directions, until close</text>
+
+            <rect x="10" y="310" width="700" height="40"  class="ph"/>
+            <text x="20" y="328" class="ll">Shutdown</text>
+            <text x="170" y="328" class="sub">close transport &rarr; both sides drop state. No "shutdown" RPC; ends with the connection.</text>
+        </svg>
+    </div>
+
+    <div class="callout">
+        <div class="callout-label">Protocol-version negotiation</div>
+        <p>The client proposes a version. The server picks one it supports (typically the highest mutually-supported value) and returns it in the <code>initialize</code> result. From 2025-06-18 onward the agreed version MUST also be sent on every subsequent HTTP request as <code>MCP-Protocol-Version: 2025-06-18</code> &mdash; this is what catches misconfigured proxies and stale clients.</p>
+    </div>
+</section>
+
+<section class="slide" id="slide-07">
+    <div class="slide-number">07</div>
+    <h2>Versioning &mdash; The Spec Timeline</h2>
+    <p>MCP versions are <strong>date-stamped</strong>, not semver. The string is literally the date the spec was frozen. Three versions matter as of 2026:</p>
+
+    <div class="table-wrap">
+        <table>
+            <thead><tr><th>Version</th><th>Headline</th><th>What changed</th></tr></thead>
+            <tbody>
+                <tr><td><code>2024-11-05</code></td><td>Initial release</td><td>Open-sourced by Anthropic. JSON-RPC + stdio + HTTP/SSE. Tools, resources, prompts, sampling, roots, logging.</td></tr>
+                <tr><td><code>2025-03-26</code></td><td>Streamable HTTP &amp; auth</td><td>New <strong>Streamable HTTP</strong> transport (HTTP+SSE deprecated). OAuth 2.1 normative. Audio content type. Tool annotations (read-only/destructive/etc).</td></tr>
+                <tr><td><code>2025-06-18</code></td><td>Current production target</td><td>JSON-RPC <em>batching removed</em>. <strong>Elicitation</strong> standardised. <strong>Structured tool output</strong> (separate <code>structuredContent</code>). Resource links in tool results. Mandatory <code>MCP-Protocol-Version</code> header. OAuth resource server clarifications (RFC 8707 audience binding).</td></tr>
+            </tbody>
+        </table>
+    </div>
+
+    <h3>Why dates, not semver?</h3>
+    <p>Date-stamping makes the spec trivially comparable (string sort &equiv; chronological order) and dodges the semver fight over what counts as &ldquo;breaking&rdquo;. The compatibility contract is: <em>servers SHOULD support a window of recent versions; clients negotiate the highest both sides know.</em></p>
+
+    <div class="callout">
+        <div class="callout-label">Migration footguns to remember</div>
+        <p><strong>Batched JSON-RPC died.</strong> If you have a 2024-11-05 server happily returning <code>[{...}, {...}]</code>, a 2025-06-18 client will refuse it. The reasoning was that batching never composed cleanly with SSE streams and almost no SDKs implemented it correctly.</p>
+        <p><strong>HTTP+SSE is deprecated, not removed.</strong> Existing servers keep working; new ones SHOULD use Streamable HTTP. Deck 02 covers the wire-level differences.</p>
+    </div>
+</section>
+
+<section class="slide" id="slide-08">
+    <div class="slide-number">08</div>
+    <h2>Worked Example &mdash; A Full Annotated Exchange</h2>
+    <p>End-to-end: a Claude Desktop client connects to a tiny weather server, lists tools, calls one, receives a structured result. Every line on the wire is shown.</p>
+
+    <div class="code-block">
+        <div class="code-header">1. initialize  (client &rarr; server, request)</div>
+<pre><code><span class="str">{"jsonrpc":"2.0","id":1,"method":"initialize","params":{
+  "protocolVersion":"2025-06-18",
+  "capabilities":{
+    "sampling":{},
+    "elicitation":{},
+    "roots":{"listChanged":true}
+  },
+  "clientInfo":{"name":"claude-desktop","version":"0.13.0"}
+}}</span></code></pre>
+    </div>
+
+    <div class="code-block">
+        <div class="code-header">2. initialize result  (server &rarr; client, response)</div>
+<pre><code><span class="str">{"jsonrpc":"2.0","id":1,"result":{
+  "protocolVersion":"2025-06-18",
+  "capabilities":{
+    "tools":{"listChanged":true},
+    "resources":{"subscribe":false,"listChanged":true}
+  },
+  "serverInfo":{"name":"weather-server","version":"1.2.0"},
+  "instructions":"Provide forecasts via the &lsquo;forecast&rsquo; tool. Locations must be ISO 3166-2 codes."
+}}</span></code></pre>
+    </div>
+
+    <div class="code-block">
+        <div class="code-header">3. notifications/initialized  (client &rarr; server, notification &mdash; no id)</div>
+<pre><code><span class="str">{"jsonrpc":"2.0","method":"notifications/initialized"}</span></code></pre>
+    </div>
+
+    <div class="code-block">
+        <div class="code-header">4. tools/list  (request / response)</div>
+<pre><code><span class="cm">// &rarr; client</span>
+<span class="str">{"jsonrpc":"2.0","id":2,"method":"tools/list"}</span>
+<span class="cm">// &larr; server</span>
+<span class="str">{"jsonrpc":"2.0","id":2,"result":{
+  "tools":[{
+    "name":"forecast",
+    "title":"Weather Forecast",
+    "description":"Return a 24-hour forecast for an ISO 3166-2 region.",
+    "inputSchema":{
+      "type":"object",
+      "properties":{ "region":{"type":"string","pattern":"^[A-Z]{2}-[A-Z0-9]{1,3}$"} },
+      "required":["region"]
+    },
+    "outputSchema":{
+      "type":"object",
+      "properties":{
+        "tempC":{"type":"number"},
+        "windKph":{"type":"number"},
+        "summary":{"type":"string"}
+      },
+      "required":["tempC","windKph","summary"]
+    },
+    "annotations":{ "readOnlyHint":true, "openWorldHint":false }
+  }]
+}}</span></code></pre>
+    </div>
+
+    <div class="code-block">
+        <div class="code-header">5. tools/call  (request / response, with structured output)</div>
+<pre><code><span class="cm">// &rarr; client</span>
+<span class="str">{"jsonrpc":"2.0","id":3,"method":"tools/call","params":{
+  "name":"forecast",
+  "arguments":{"region":"GB-LND"}
+}}</span>
+<span class="cm">// &larr; server</span>
+<span class="str">{"jsonrpc":"2.0","id":3,"result":{
+  "content":[{"type":"text","text":"London: 12&deg;C, 14 km/h, light rain easing this evening."}],
+  "structuredContent":{"tempC":12.0,"windKph":14.0,"summary":"light rain easing"},
+  "isError":false
+}}</span></code></pre>
+    </div>
+
+    <div class="callout">
+        <div class="callout-label">What &lsquo;structured output&rsquo; gives you</div>
+        <p>The model still sees the human-readable <code>content</code> &mdash; that's what gets concatenated into the LLM's context. The <code>structuredContent</code> is for downstream code: a workflow engine that wants to branch on <code>tempC</code> doesn't have to regex it out of the prose. Validation against <code>outputSchema</code> is the host's responsibility &mdash; but if the schema is published, both sides can rely on it.</p>
+    </div>
+</section>
+
+<section class="slide" id="slide-09">
+    <div class="slide-number">09</div>
+    <h2>What to Take Away</h2>
+    <ul>
+        <li><strong>MCP is JSON-RPC 2.0</strong> with five primitives bolted on. The whole protocol is small enough to keep in your head.</li>
+        <li><strong>Three roles, three nouns.</strong> Host owns the LLM. Client is one-per-server inside the host. Server is a pure protocol citizen with no model awareness.</li>
+        <li><strong>Three message shapes.</strong> Request/response carry an <code>id</code>; notifications don't. Tool failures live in <code>result.isError</code>, not in JSON-RPC errors.</li>
+        <li><strong>Five primitives.</strong> Server exposes tools, resources, prompts. Client exposes sampling, elicitation. Roots and logging are first-class auxiliaries.</li>
+        <li><strong>Capabilities are negotiated up front.</strong> Absent &ne; empty. Don't probe; check the <code>initialize</code> result.</li>
+        <li><strong>Versions are date-stamps.</strong> Pin to the <em>highest</em> common one. 2025-06-18 is the current target; expect another bump every few months.</li>
+    </ul>
+
+    <div class="callout">
+        <div class="callout-label">Where to next</div>
+        <p>Deck 02 dives into the transports &mdash; stdio, the deprecated HTTP+SSE, and the modern Streamable HTTP. Deck 03 walks through writing a real server in Python and TypeScript. Deck 04 is the one your security team will want to read.</p>
+    </div>
+</section>
+
+<footer class="footer">
+    <p>Part of the <a href="https://github.com/BrendanJamesLynskey/LLMs#model-context-protocol-mcp">Model Context Protocol Series</a></p>
+    <p style="margin-top: 0.5rem; font-size: 0.8rem;"><a href="https://github.com/BrendanJamesLynskey/LLMs#model-context-protocol-mcp">Back to Series Index</a></p>
+</footer>
+<script>
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener('click', function (e) {
+            e.preventDefault();
+            const target = document.querySelector(this.getAttribute('href'));
+            if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        });
+    });
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.style.opacity = '1';
+                entry.target.style.transform = 'translateY(0)';
+            }
+        });
+    }, { threshold: 0.1 });
+    document.querySelectorAll('.slide').forEach(slide => {
+        slide.style.opacity = '0';
+        slide.style.transform = 'translateY(30px)';
+        slide.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
+        observer.observe(slide);
+    });
+</script>
+</body>
+</html>

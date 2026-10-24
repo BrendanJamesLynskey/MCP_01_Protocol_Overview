@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html data-concept="patchbay" lang="en">
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -400,9 +400,57 @@
     /* deck-mobile-fix:phone */ @media (max-width:640px){.diagram-box,.tier-fill,.section-divider>span,.action-btn{white-space:normal;overflow-wrap:anywhere}.diagram-grid>*,.diagram-panel,.diagram-box,.code-block,.callout,.metric,.control-group,.control-row>*,.pipeline-body,.roll-track>*,.tier-fill,.timeline-row>*{min-width:0;max-width:100%}p,li,a,code,td,th,.callout,.diagram-panel{overflow-wrap:break-word}pre{max-width:100%;overflow-x:auto}table{display:block;max-width:100%;overflow-x:auto}.katex-display,.bits,.canvas-wrap,.influence-map-wrapper,.timeline-track,div:has(>.bank-cell){max-width:100%;overflow-x:auto;overflow-y:hidden}select,input,img,video,iframe,.action-btn{max-width:100%}canvas{max-width:100%;height:auto}}
         /* era-tag (brief 28) */ .era-tag{display:inline-block;font-family:var(--font-mono);font-size:.7rem;font-weight:500;letter-spacing:.02em;text-transform:none;padding:.1rem .55rem;border-radius:999px;border:1px solid var(--border);color:var(--text-secondary);background:var(--bg-code);vertical-align:middle;margin-left:.4rem;white-space:nowrap}@media (max-width:640px){.era-tag{white-space:normal;max-width:100%}}.diagram-grid>*{min-width:0}.diagram-panel p code{overflow-wrap:anywhere}.era-tag.now{color:var(--accent);border-color:var(--accent)}.spec-cite{font-size:.8rem;color:var(--text-secondary);margin-top:.6rem}.spec-cite a,.callout a,.diagram-panel a{color:var(--accent)}
 </style>
+<style id="deck-concept">
+html[data-concept=patchbay] .hero{min-height:auto;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.1fr);column-gap:2.75rem;align-items:start;align-content:start;justify-items:start;text-align:left;max-width:1180px;margin:0 auto;padding:2rem 1.75rem 3.5rem}
+html[data-concept=patchbay] .hero::before,html[data-concept=patchbay] .hero::after{display:none}
+html[data-concept=patchbay] .hero>*{grid-column:1;margin-left:0;margin-right:0}
+html[data-concept=patchbay] .hero .series-label{display:none}
+html[data-concept=patchbay] .pb-head{grid-column:1/-1;width:100%;display:flex;justify-content:space-between;font-family:var(--font-mono);font-size:.8rem;color:var(--text-secondary);border-bottom:1px solid var(--border);padding-bottom:.5rem;margin-bottom:2.25rem}
+html[data-concept=patchbay] .pb-head span:first-child{color:var(--text-primary)}
+html[data-concept=patchbay] .hero h1{font-size:clamp(2rem,4.3vw,3.2rem);line-height:1.08;letter-spacing:-.015em;margin-bottom:1rem}
+html[data-concept=patchbay] .hero h1 .accent{color:var(--accent)}
+html[data-concept=patchbay] .hero .subtitle{max-width:none;margin-bottom:1.5rem}
+html[data-concept=patchbay] .hero .tags{justify-content:flex-start;gap:.35rem .5rem;margin-bottom:1.25rem}
+html[data-concept=patchbay] .hero .tag{background:#e9e4d8;color:#1f1b17;border:0;border-radius:1px;padding:.08rem .45rem;font-family:var(--font-mono);font-size:.74rem;box-shadow:inset 0 -1px 0 rgba(0,0,0,.15)}
+html[data-concept=patchbay] .hero .pipeline{justify-content:flex-start;margin-bottom:0}
+html[data-concept=patchbay] .pipeline-step{background:none;border:0;border-radius:0;padding:0;color:var(--text-secondary);font-family:var(--font-mono);font-size:.78rem}
+html[data-concept=patchbay] .pb-fig{grid-column:2;grid-row:2/span 6;width:100%;margin:0}
+html[data-concept=patchbay] .pb-fig figcaption{font-size:.88rem;line-height:1.5;color:var(--text-secondary);margin-top:.5rem}
+html[data-concept=patchbay] .concept-art{display:block;width:100%;height:auto;overflow:visible}
+html[data-concept=patchbay] .concept-art .pb-panel{fill:#2b2d30;stroke:#46494d;stroke-width:1}
+html[data-concept=patchbay] .concept-art .pb-strip{fill:#e9e4d8}
+html[data-concept=patchbay] .concept-art .pb-title{font-family:var(--font-mono);font-size:8.5px;fill:#1f1b17;letter-spacing:.06em}
+html[data-concept=patchbay] .concept-art .pb-screw{fill:#8d9196}
+html[data-concept=patchbay] .concept-art .pb-jack{fill:#1a1b1d;stroke:#9aa0a6;stroke-width:1.4}
+html[data-concept=patchbay] .concept-art .pb-hole{fill:#000}
+html[data-concept=patchbay] .concept-art .pb-lab{font-family:var(--font-mono);font-size:8px;fill:#c8cbcf}
+html[data-concept=patchbay] .concept-art .pb-note{font-family:var(--font-mono);font-size:9px;fill:var(--text-secondary)}
+html[data-concept=patchbay] .concept-art .pb-cord{fill:none;stroke-width:4;stroke-linecap:round;filter:drop-shadow(0 2px 1px rgba(0,0,0,.45))}
+html[data-concept=patchbay] .concept-art .pb-plug{stroke:#111;stroke-width:1.2}
+html[data-concept=patchbay] .concept-art .pb-gate{fill:#1c2b22;stroke:#a9cf8f;stroke-width:1.4;stroke-dasharray:4 3}
+html[data-concept=patchbay] .concept-art .pc-red{stroke:#d9614c;fill:#d9614c}
+html[data-concept=patchbay] .concept-art .pc-yellow{stroke:#e2b552;fill:#e2b552}
+html[data-concept=patchbay] .concept-art .pc-blue{stroke:#5d9fd6;fill:#5d9fd6}
+html[data-concept=patchbay] .concept-art .pc-green{stroke:#7fbf6a;fill:#7fbf6a}
+html[data-concept=patchbay] .concept-art .pc-white{stroke:#e7e3da;fill:#e7e3da}
+html[data-concept=patchbay] .concept-art path.pb-cord{fill:none}
+html[data-concept=patchbay] .slide-number{font-family:var(--font-mono);font-size:.78rem;font-weight:400;color:#1f1b17;background:#e9e4d8;padding:.05rem .4rem;top:4.4rem;right:1.5rem;line-height:1.5}
+html[data-concept=patchbay] .slide h2{color:var(--text-primary);padding-right:3.5rem}
+html[data-concept=patchbay] .slide h2::after{content:'';display:block;width:4.5rem;height:4px;margin-top:.55rem;border-radius:2px;background:linear-gradient(90deg,#d9614c 0 20%,#e2b552 20% 40%,#5d9fd6 40% 60%,#7fbf6a 60% 80%,#e7e3da 80%)}
+html[data-concept=patchbay] .callout .callout-label,html[data-concept=patchbay] .metric .metric-label{text-transform:none;letter-spacing:0;font-size:.82rem}
+html[data-concept=patchbay] .callout,html[data-concept=patchbay] .diagram-grid,html[data-concept=patchbay] .canvas-wrap,html[data-concept=patchbay] .control-panel,html[data-concept=patchbay] .diagram-panel,html[data-concept=patchbay] .metric,html[data-concept=patchbay] .btn,html[data-concept=patchbay] .tag{border-radius:2px}
+@media (max-width:820px){
+ html[data-concept=patchbay] .hero{grid-template-columns:minmax(0,1fr);padding:1.25rem 1rem 2.5rem}
+ html[data-concept=patchbay] .pb-fig{grid-column:1;grid-row:auto;order:10;margin-top:1.5rem}
+}
+</style>
 </head>
 <body>
 <header class="hero">
+<!-- deck-concept:start -->
+<div class="pb-head" aria-hidden="true"><span>Model Context Protocol</span><span>Patch 01</span></div>
+<figure class="pb-fig"><svg class="concept-art" viewBox="0 0 440 300" role="img" aria-label="An MCP patch bay: host clients patched to servers" xmlns="http://www.w3.org/2000/svg"><rect class="pb-panel" x="14" y="18" width="412" height="74" rx="3"/><rect class="pb-strip" x="28" y="26" width="384" height="14" rx="1"/><text class="pb-title" x="34" y="36.5">HOST · Claude Desktop / IDE / agent</text><circle class="pb-screw" cx="20" cy="30" r="3"/><circle class="pb-screw" cx="20" cy="80" r="3"/><circle class="pb-screw" cx="420" cy="30" r="3"/><circle class="pb-screw" cx="420" cy="80" r="3"/><circle class="pb-jack" cx="52" cy="64" r="8"/><circle class="pb-hole" cx="52" cy="64" r="3.4"/><text class="pb-lab" x="52" y="86" text-anchor="middle">client 1</text><circle class="pb-jack" cx="164" cy="64" r="8"/><circle class="pb-hole" cx="164" cy="64" r="3.4"/><text class="pb-lab" x="164" y="86" text-anchor="middle">client 2</text><circle class="pb-jack" cx="276" cy="64" r="8"/><circle class="pb-hole" cx="276" cy="64" r="3.4"/><text class="pb-lab" x="276" y="86" text-anchor="middle">client 3</text><circle class="pb-jack" cx="388" cy="64" r="8"/><circle class="pb-hole" cx="388" cy="64" r="3.4"/><text class="pb-lab" x="388" y="86" text-anchor="middle">client 4</text><rect class="pb-panel" x="14" y="196" width="412" height="74" rx="3"/><rect class="pb-strip" x="28" y="204" width="384" height="14" rx="1"/><text class="pb-title" x="34" y="214.5">MCP SERVERS</text><circle class="pb-screw" cx="20" cy="208" r="3"/><circle class="pb-screw" cx="20" cy="258" r="3"/><circle class="pb-screw" cx="420" cy="208" r="3"/><circle class="pb-screw" cx="420" cy="258" r="3"/><circle class="pb-jack" cx="52" cy="242" r="8"/><circle class="pb-hole" cx="52" cy="242" r="3.4"/><text class="pb-lab" x="52" y="264" text-anchor="middle">files</text><circle class="pb-jack" cx="119.2" cy="242" r="8"/><circle class="pb-hole" cx="119.2" cy="242" r="3.4"/><text class="pb-lab" x="119.2" y="264" text-anchor="middle">GitHub</text><circle class="pb-jack" cx="186.4" cy="242" r="8"/><circle class="pb-hole" cx="186.4" cy="242" r="3.4"/><text class="pb-lab" x="186.4" y="264" text-anchor="middle">database</text><circle class="pb-jack" cx="253.6" cy="242" r="8"/><circle class="pb-hole" cx="253.6" cy="242" r="3.4"/><text class="pb-lab" x="253.6" y="264" text-anchor="middle">search</text><circle class="pb-jack" cx="320.8" cy="242" r="8"/><circle class="pb-hole" cx="320.8" cy="242" r="3.4"/><text class="pb-lab" x="320.8" y="264" text-anchor="middle">calendar</text><circle class="pb-jack" cx="388" cy="242" r="8"/><circle class="pb-hole" cx="388" cy="242" r="3.4"/><text class="pb-lab" x="388" y="264" text-anchor="middle">browser</text><path class="pb-cord pc-red" d="M52 64 C 52 282, 52 282, 52 242"/><circle class="pb-plug pc-red" cx="52" cy="64" r="5"/><circle class="pb-plug pc-red" cx="52" cy="242" r="5"/><path class="pb-cord pc-yellow" d="M164 64 C 164 282, 119.2 282, 119.2 242"/><circle class="pb-plug pc-yellow" cx="164" cy="64" r="5"/><circle class="pb-plug pc-yellow" cx="119.2" cy="242" r="5"/><path class="pb-cord pc-blue" d="M164 64 C 164 282, 186.4 282, 186.4 242"/><circle class="pb-plug pc-blue" cx="164" cy="64" r="5"/><circle class="pb-plug pc-blue" cx="186.4" cy="242" r="5"/><path class="pb-cord pc-green" d="M276 64 C 276 282, 253.6 282, 253.6 242"/><circle class="pb-plug pc-green" cx="276" cy="64" r="5"/><circle class="pb-plug pc-green" cx="253.6" cy="242" r="5"/><path class="pb-cord pc-white" d="M388 64 C 388 282, 388 282, 388 242"/><circle class="pb-plug pc-white" cx="388" cy="64" r="5"/><circle class="pb-plug pc-white" cx="388" cy="242" r="5"/><text class="pb-note" x="220" y="132" text-anchor="middle">one client per server connection, JSON-RPC on every cord</text></svg><figcaption>MCP as a patch bay: a host runs one client per connection, and any server plugs into any host.</figcaption></figure>
+<!-- deck-concept:end -->
     <div class="series-label">Model Context Protocol Series — Presentation 01</div>
     <h1>The <span class="accent">Model Context Protocol</span> &mdash; A Visual Tour</h1>
     <p class="subtitle">What MCP actually is on the wire — JSON-RPC primitives, host/client/server topology, capability negotiation, lifecycle, and the version timeline from 2024-11-05 to 2026-07-28, the revision that made MCP stateless. Both eras are covered; handshake-era material is tagged &ldquo;before 2026-07-28&rdquo;.</p>
